@@ -1,6 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Tab Manager",
+    "description": "タブ整理用の簡素なタブマネージャー",
     "version": "1.0",
     
     "action": {

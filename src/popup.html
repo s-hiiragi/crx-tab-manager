@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Tab Manager</title>
 <link rel="stylesheet" href="popup.css">
 <script src="popup.js"></script>
 </head>
 <body>
 <div id="toolbar">
+    <label>
+    フィルタ
     <input type="text" id="searchword">
+    </label>
     <input type="button" id="split" value="新規ウィンドウに移動">
+    <input type="button" id="popup" value="分離">
 </div>
 <div id="tablist"></div>
 </body>
