@@ -7,7 +7,7 @@
         ? await chrome.windows.get(paramWindowId, {populate: true})
         : await chrome.windows.getCurrent({populate: true});
 
-    const updateTabList = (query={title:''}) => {
+    const filterTabList = (query={title:''}) => {
         let matchedTabs;
         if (query.title) {
             matchedTabs = currentWindow.tabs.filter(tab => {
@@ -24,7 +24,8 @@
             const checkBox = document.createElement('input');
             checkBox.type = 'checkbox';
             checkBox.onchange = () => {
-                tab.checked = checkBox.checked;
+                // chrome.tabs.Tabのプロパティと被らないように'_'を付ける
+                tab._checked = checkBox.checked;
             };
 
             const checkContainer = document.createElement('div');
@@ -65,13 +66,19 @@
 
         newTabList.appendChild(ul);
 
-        const splitButton = document.querySelector('#split');
-        splitButton.onclick = async() => {
-            let selectedTabs = matchedTabs.filter(t=>t.checked);
+        const getSelectedTabs = () => {
+            let selectedTabs = matchedTabs.filter(t=>t._checked);
 
             if (selectedTabs.length == 0 && query.title) {
                 selectedTabs = matchedTabs;
             }
+
+            return selectedTabs;
+        };
+
+        const splitButton = document.querySelector('#split');
+        splitButton.onclick = async() => {
+            const selectedTabs = getSelectedTabs();
 
             if (selectedTabs.length === 0) {return;}
 
@@ -94,6 +101,28 @@
             chrome.windows.create({url: url.toString()});
             window.close();
         };
+
+        const closeButton = document.querySelector('#close');
+        closeButton.onclick = async() => {
+            const selectedTabs = getSelectedTabs();
+
+            if (selectedTabs.length === 0) {return;}
+
+            await chrome.tabs.remove(selectedTabs.map(t=>t.id));
+
+            // 閉じたタブはcurrentWindow.tabsからも消す必要がある
+            for (const tab of selectedTabs) {
+                tab._closed = true;
+            }
+            for (let i = currentWindow.tabs.length - 1; i >= 0; i--) {
+                const tab = currentWindow.tabs[i];
+                if (tab._closed) {
+                    currentWindow.tabs.splice(i, 1);
+                }
+            }
+            
+            filterTabList(query);
+        };
     };
 
     const searchword = document.querySelector('#searchword');
@@ -103,7 +132,7 @@
     }
 
     searchword.oninput = () => {
-        updateTabList({
+        filterTabList({
             title: searchword.value
         });
     };
@@ -112,15 +141,13 @@
         if (document.body) {
             document.body.classList.add('actionwindow');
         } else {
-            console.log('a1');
             window.onload = () => {
-                console.log('a2');
                 document.body.classList.add('actionwindow');
             };
         }
     }
 
-    updateTabList({
+    filterTabList({
         title: searchword.value
     });
 })();
