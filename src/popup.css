@@ -1,9 +1,13 @@
-.toolbar {
+:root {
+    width: 540px;
+}
+
+#toolbar {
     float: left;
     position: fixed;
 }
 
-.tablist {
+#tablist {
     padding-top: 26px;
 }
 
@@ -20,6 +24,10 @@ li {
     padding: 0.5em;
     white-space: nowrap;
     cursor: pointer;
+}
+
+li.active {
+    background-color: #FFC;
 }
 
 li:hover {

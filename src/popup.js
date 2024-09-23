@@ -50,6 +50,15 @@
             titleContainer.appendChild(span);
 
             const li = document.createElement('li');
+            if (tab.active) {
+                li.classList.add('active');
+            }
+            if (tab.highlighted) {
+                li.classList.add('highlighted');
+            }
+            if (tab.pinned) {
+                li.classList.add('pinned');
+            }
             li.appendChild(checkContainer);
             li.appendChild(titleContainer);
 
@@ -61,10 +70,13 @@
         }
 
         const oldTabList = document.querySelector('#tablist');
-        const newTabList = oldTabList.cloneNode(false);
+        const newTabList = oldTabList.cloneNode(false);  // 子孫ノードは複製しない
         oldTabList.parentNode.replaceChild(newTabList, oldTabList);
 
         newTabList.appendChild(ul);
+
+        const activeOffsetTop = ul.querySelector('.active').offsetTop;
+        ul.scrollTo(0, activeOffsetTop - ul.offsetTop);
 
         const getSelectedTabs = () => {
             let selectedTabs = matchedTabs.filter(t=>t._checked);
